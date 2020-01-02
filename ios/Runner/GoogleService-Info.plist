@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>872110279011-as6s717dcv5thn2beqptvc97m5uuhqtv.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.872110279011-as6s717dcv5thn2beqptvc97m5uuhqtv</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBx1Giih_DFW4cmcQ_fVmT_MpcwVTOSmHI</string>
+	<key>GCM_SENDER_ID</key>
+	<string>872110279011</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.elseAdminTwo</string>
+	<key>PROJECT_ID</key>
+	<string>elseconsumerdatabase</string>
+	<key>STORAGE_BUCKET</key>
+	<string>elseconsumerdatabase.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:872110279011:ios:0ae248e2d5689a2a522b56</string>
+	<key>DATABASE_URL</key>
+	<string>https://elseconsumerdatabase.firebaseio.com</string>
+</dict>
+</plist>
