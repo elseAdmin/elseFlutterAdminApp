@@ -1,4 +1,5 @@
 import 'package:else_admin_two/event/AddEventScreen.dart';
+import 'package:else_admin_two/shop/shop_screen.dart';
 import 'package:else_admin_two/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
 
@@ -36,6 +37,11 @@ class _MyHomePageState extends State<MyHomePage> {
         MaterialPageRoute(builder: (BuildContext context) => AddEventScreen()));
   }
 
+  _redirectToShopPage() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => ShopScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -44,13 +50,54 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: ListView(
+          padding: const EdgeInsets.all(3),
           children: <Widget>[
-            GestureDetector(
-              onTap: _redirectToAddEventPage,
-              child: Text("Add an event"),
-            )
+            Container(
+              padding: EdgeInsets.only(
+              top: SizeConfig.blockSizeVertical * 1,
+              left: SizeConfig.blockSizeHorizontal * 2),
+              child: GestureDetector(
+                onTap: _redirectToAddEventPage,
+                child: Text("Add an event"),
+              ),
+            ),
+            Divider(
+              endIndent: SizeConfig.blockSizeHorizontal * 60,
+              color: Colors.black87,
+              height: SizeConfig.blockSizeVertical,
+            ),
+            Container(
+              padding: EdgeInsets.only(
+                  top: SizeConfig.blockSizeVertical * 1,
+                  left: SizeConfig.blockSizeHorizontal * 2),
+              child: GestureDetector(
+                child: Text("Add Shop"),
+              ),
+            ),
+            Divider(
+              endIndent: SizeConfig.blockSizeHorizontal * 60,
+              color: Colors.black87,
+              height: SizeConfig.blockSizeVertical,
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height/12,
+              child: RaisedButton(
+                onPressed: _redirectToAddEventPage,
+                child: Text("Events"),
+                color: Colors.white,
+                textColor: Colors.green,
+              ),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height/12,
+              child: RaisedButton(
+                onPressed: _redirectToShopPage,
+                child: Text("Shops"),
+                color: Colors.white,
+                textColor: Colors.red,
+              ),
+            ),
           ],
         ),
       ),
