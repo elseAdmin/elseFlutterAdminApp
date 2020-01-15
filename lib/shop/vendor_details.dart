@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:else_admin_two/firebaseUtil/firebase_api.dart';
 import 'package:else_admin_two/shop/models/shop_model.dart';
 import 'package:else_admin_two/shop/new_vendor.dart';
 import 'package:else_admin_two/utils/Contants.dart';
@@ -10,6 +11,7 @@ class VendorDetails extends StatelessWidget {
   VendorDetails(this._shopModel);
   double userRating = -1;
   String userReview;
+  FireBaseApi _fireBaseApi = FireBaseApi("shopStaticData");
 
   setUserRating(double rating) {
     userRating = rating;
@@ -112,6 +114,11 @@ class VendorDetails extends StatelessWidget {
                       children: <Widget>[
                         Expanded(
                           child: RaisedButton(
+                            onPressed: () {
+                              print('${_shopModel.name} removing shop');
+                              _fireBaseApi.removeSnapshot(_shopModel.name.toLowerCase());
+                              Navigator.pop(context);
+                            },
                             child: Center(child: Text("Delete"),),
                             color: Colors.white,
                             textColor: Colors.red,

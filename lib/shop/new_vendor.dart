@@ -104,7 +104,7 @@ class _NewVendor extends State<NewVendor>{
   }
 
   void _addVendor() async{
-    ShopModel shopModel = new ShopModel(_nameController.text,_aboutController.text,
+    ShopModel shopModel = new ShopModel(_nameController.text.toLowerCase(),_aboutController.text,
     int.parse(_floorController.text), _shopNumberController.text, _category, _openTime, _closeTime,
     _contactController.text, _imageUrl);
 
