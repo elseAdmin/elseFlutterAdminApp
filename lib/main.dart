@@ -32,9 +32,9 @@ class _MyHomePageState extends State<MyHomePage> {
   initState(){
     super.initState();
   }
-  _redirectToAddEventPage() {
+  _redirectToEventPage() {
     Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => AddEventScreen()));
+        MaterialPageRoute(builder: (BuildContext context) => EventScreen()));
   }
 
   _redirectToShopPage() {
@@ -53,37 +53,10 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView(
           padding: const EdgeInsets.all(3),
           children: <Widget>[
-            Container(
-              padding: EdgeInsets.only(
-              top: SizeConfig.blockSizeVertical * 1,
-              left: SizeConfig.blockSizeHorizontal * 2),
-              child: GestureDetector(
-                onTap: _redirectToAddEventPage,
-                child: Text("Add an event"),
-              ),
-            ),
-            Divider(
-              endIndent: SizeConfig.blockSizeHorizontal * 60,
-              color: Colors.black87,
-              height: SizeConfig.blockSizeVertical,
-            ),
-            Container(
-              padding: EdgeInsets.only(
-                  top: SizeConfig.blockSizeVertical * 1,
-                  left: SizeConfig.blockSizeHorizontal * 2),
-              child: GestureDetector(
-                child: Text("Add Shop"),
-              ),
-            ),
-            Divider(
-              endIndent: SizeConfig.blockSizeHorizontal * 60,
-              color: Colors.black87,
-              height: SizeConfig.blockSizeVertical,
-            ),
             SizedBox(
               height: MediaQuery.of(context).size.height/12,
               child: RaisedButton(
-                onPressed: _redirectToAddEventPage,
+                onPressed: _redirectToEventPage,
                 child: Text("Events"),
                 color: Colors.white,
                 textColor: Colors.green,
