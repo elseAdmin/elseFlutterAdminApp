@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:else_admin_two/event/BackgroundPicture.dart';
+import 'package:else_admin_two/event/beacon_model.dart';
 import 'package:else_admin_two/event/events_model.dart';
 import 'package:else_admin_two/firebaseUtil/database_manager.dart';
 import 'package:else_admin_two/utils/SizeConfig.dart';
@@ -20,9 +20,8 @@ class AddEventScreenState extends State<AddEventScreen> {
   String typeValue = "Online";
   DateTime selectedStartDate = DateTime.now();
   DateTime selectedEndDate = DateTime.now();
-  String uid, name, description;
+  String uid, name, description,major,minor,observedDays;
   File backgroundImage;
-  File image;
   final _formKey = GlobalKey<FormState>();
   _selectStartDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
@@ -51,23 +50,23 @@ class AddEventScreenState extends State<AddEventScreen> {
   _submitEvent() async {
     if (_formKey.currentState.validate()) {
       if (backgroundImage != null) {
-        await DatabaseManager()
-            .uploadImageToStorage(this.uid, this.backgroundImage);
-        EventModel event = EventModel(null);
+        EventModel event = EventModel();
         event.uid = this.uid;
         event.name = this.name;
-        event.url = "url";
         event.status = this.statusValue;
         event.type = this.typeValue;
         event.endDate = this.selectedEndDate;
-        event.observedDays = 0;
         event.startDate = this.selectedStartDate;
         event.rules = "asss";
         event.description = this.description;
         event.totalRules = 3;
-        event.blurUrl = "asasas";
-
-        DatabaseManager().addEvent(event);
+        List<BeaconData> beacons = List();
+        BeaconData beaconData = BeaconData(int.parse(this.major),int.parse(this.minor));
+        beacons.add(beaconData);
+        event.beaconDataList = beacons;
+        event.observedDays=int.parse(this.observedDays);
+        await DatabaseManager().addEvent(event,backgroundImage);
+        Navigator.pop(context);
       } else {
         //Toast
         Fluttertoast.showToast(
@@ -84,7 +83,7 @@ class AddEventScreenState extends State<AddEventScreen> {
 
   onImageSelectedFromCameraOrGallery(file) {
     setState(() {
-      image = file;
+      backgroundImage = file;
     });
   }
 
@@ -139,6 +138,39 @@ class AddEventScreenState extends State<AddEventScreen> {
                     validator: (value) {
                       if (value.isEmpty) {
                         return 'Please enter a valid description';
+                      }
+                    },
+                  ),
+                  TextFormField(
+                    onChanged: (text) {
+                      this.observedDays = text;
+                    },
+                    decoration: InputDecoration(labelText: 'Observed days'),
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please enter a valid number';
+                      }
+                    },
+                  ),
+                  TextFormField(
+                    onChanged: (text) {
+                      this.major = text;
+                    },
+                    decoration: InputDecoration(labelText: 'Major'),
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please enter a valid major';
+                      }
+                    },
+                  ),
+                  TextFormField(
+                    onChanged: (text) {
+                      this.minor = text;
+                    },
+                    decoration: InputDecoration(labelText: 'Minor'),
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please enter a valid minor';
                       }
                     },
                   ),
@@ -219,7 +251,7 @@ class AddEventScreenState extends State<AddEventScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
-                      BackgroundPicture(image),
+                      BackgroundPicture(backgroundImage),
                       GalleryImpl(onImageSelectedFromCameraOrGallery)
                     ],
                   ),
@@ -229,7 +261,7 @@ class AddEventScreenState extends State<AddEventScreen> {
                       child: GestureDetector(
                           onTap: _submitEvent,
                           child: Text(
-                            "Create",
+                            "save",
                             style: TextStyle(fontSize: 20),
                           ))),
                 ],

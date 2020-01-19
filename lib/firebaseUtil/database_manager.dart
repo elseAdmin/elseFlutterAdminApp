@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:else_admin_two/event/events_model.dart';
@@ -47,7 +48,10 @@ class DatabaseManager {
       return events;
   }
 
-  addEvent(EventModel event) async{
+  addEvent(EventModel event,File image) async{
+    String url = await uploadImageToStorage(event.uid,image);
+    event.url=url;
+    event.blurUrl = url;
     await getEventsDBRef().child(event.uid).set(event.toJson());
   }
 
@@ -92,5 +96,19 @@ class DatabaseManager {
     );
     final StorageTaskSnapshot downloadUrl = (await uploadTask.onComplete);
     final String url = (await downloadUrl.ref.getDownloadURL());
+    return url;
+  }
+
+  saveEvent(EventModel model, File image)  async {
+    if(image!=null){
+      String url = await uploadImageToStorage(model.uid, image);
+      model.url = url;
+      model.blurUrl = url;
+    }
+    await getEventsDBRef().child(model.uid).set(model.toJson());
+  }
+
+  deleteEvent(String uid) async{
+    await getEventsDBRef().child(uid).remove();
   }
 }
