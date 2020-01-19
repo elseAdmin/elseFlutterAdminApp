@@ -11,7 +11,7 @@ import 'package:multiselect_formfield/multiselect_formfield.dart';
 import '../utils/app_startup_data.dart';
 import '../utils/pick_gallery_impl.dart';
 
-class NewVendor extends StatefulWidget{
+class NewVendor extends StatefulWidget {
   final ShopModel shopModel;
   NewVendor(this.shopModel);
 
@@ -19,9 +19,10 @@ class NewVendor extends StatefulWidget{
   _NewVendor createState() => _NewVendor();
 }
 
-class _NewVendor extends State<NewVendor>{
+class _NewVendor extends State<NewVendor> {
   final _formKey = GlobalKey<FormState>();
-  final StorageManager _storageManager = StorageManager(StartupData.dbreference+'/category/shops/');
+  final StorageManager _storageManager =
+      StorageManager(StartupData.dbreference + '/category/shops/');
   FireBaseApi _fireBaseApi = FireBaseApi("shopStaticData");
   TextEditingController _aboutController = TextEditingController();
   TextEditingController _nameController = TextEditingController();
@@ -33,14 +34,37 @@ class _NewVendor extends State<NewVendor>{
   String _openTime;
   String _closeTime;
   String _universe;
-  List<String> timeList = ["1 a.m", "2 a.m", "3 a.m", "4 a.m", "5 a.m", "6 a.m", "7 a.m", "8 a.m", "9 a.m", "10 a.m", "11 a.m", "12 noon",
-    "1 p.m", "2 p.m", "3 p.m", "4 p.m", "5 p.m", "6 p.m", "7 p.m", "8 p.m", "9 p.m", "10 p.m", "11 p.m", "12 midnight"];
-
+  List<String> timeList = [
+    "1 a.m",
+    "2 a.m",
+    "3 a.m",
+    "4 a.m",
+    "5 a.m",
+    "6 a.m",
+    "7 a.m",
+    "8 a.m",
+    "9 a.m",
+    "10 a.m",
+    "11 a.m",
+    "12 noon",
+    "1 p.m",
+    "2 p.m",
+    "3 p.m",
+    "4 p.m",
+    "5 p.m",
+    "6 p.m",
+    "7 p.m",
+    "8 p.m",
+    "9 p.m",
+    "10 p.m",
+    "11 p.m",
+    "12 midnight"
+  ];
 
   @override
   void initState() {
     super.initState();
-    if(widget.shopModel != null){
+    if (widget.shopModel != null) {
       _nameController.text = widget.shopModel.name;
       _aboutController.text = widget.shopModel.about;
       _floorController.text = widget.shopModel.floor.toString();
@@ -56,10 +80,10 @@ class _NewVendor extends State<NewVendor>{
 
   onImageSelectedFromCameraOrGallery(file) {
     print(file);
-    if(_universe != null && _nameController.text.isNotEmpty){
+    if (_universe != null && _nameController.text.isNotEmpty) {
       showDialog(
         context: context,
-        builder: (BuildContext context){
+        builder: (BuildContext context) {
           return Container(
             height: MediaQuery.of(context).size.height * 2 / 3,
             child: Card(
@@ -73,24 +97,31 @@ class _NewVendor extends State<NewVendor>{
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       FlatButton(
-                        onPressed: (){
+                        onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: Center(child: Text("CANCEL"),),
+                        child: Center(
+                          child: Text("CANCEL"),
+                        ),
                       ),
                       FlatButton(
-                        onPressed: (){
-                          String path = StartupData.dbreference+'/category/shops/${_nameController.text}';
+                        onPressed: () {
+                          String path = StartupData.dbreference +
+                              '/category/shops/${_nameController.text}';
                           _storageManager.addFilePath(path);
-                          _storageManager.uploadImageUrl(file).then((uploadUrl){
+                          _storageManager
+                              .uploadImageUrl(file)
+                              .then((uploadUrl) {
                             setState(() {
-                              _imageUrl=uploadUrl;
-                              print('Values in image url list '+_imageUrl);
+                              _imageUrl = uploadUrl;
+                              print('Values in image url list ' + _imageUrl);
                             });
                           });
                           Navigator.pop(context);
                         },
-                        child: Center(child: Text("OK"),),
+                        child: Center(
+                          child: Text("OK"),
+                        ),
                       ),
                     ],
                   ),
@@ -103,23 +134,34 @@ class _NewVendor extends State<NewVendor>{
     }
   }
 
-  void _addVendor() async{
-    ShopModel shopModel = new ShopModel(_nameController.text.toLowerCase(),_aboutController.text,
-    int.parse(_floorController.text), _shopNumberController.text, _category, _openTime, _closeTime,
-    _contactController.text, _imageUrl);
+  void _addVendor() async {
+    ShopModel shopModel = new ShopModel(
+        _nameController.text.toLowerCase(),
+        _aboutController.text,
+        int.parse(_floorController.text),
+        _shopNumberController.text,
+        _category,
+        _openTime,
+        _closeTime,
+        _contactController.text,
+        _imageUrl);
 
-    _fireBaseApi.updateDocument(shopModel.toJson(), _nameController.text.toLowerCase()).then((data){
-      showModalBottomSheet(context: context, builder: (context){
-        return getModal();
-      });
+    _fireBaseApi
+        .updateDocument(shopModel.toJson(), _nameController.text.toLowerCase())
+        .then((data) {
+      showModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return getModal();
+          });
     });
   }
 
-  void _popContext(BuildContext context){
+  void _popContext(BuildContext context) {
     Navigator.pop(context);
   }
 
-  Widget getModal(){
+  Widget getModal() {
     return Container(
       height: MediaQuery.of(context).size.height / 4,
       decoration: BoxDecoration(
@@ -132,7 +174,10 @@ class _NewVendor extends State<NewVendor>{
       child: Column(
         children: <Widget>[
           ListTile(
-            title: Text("Vendor added", textAlign: TextAlign.center,),
+            title: Text(
+              "Vendor added",
+              textAlign: TextAlign.center,
+            ),
             subtitle: Text("Our team has started working on this......"),
           ),
           Padding(
@@ -140,12 +185,14 @@ class _NewVendor extends State<NewVendor>{
           ),
           FlatButton(
             color: Colors.white,
-            onPressed: (){
+            onPressed: () {
               Navigator.pop(context);
               _popContext(context);
             },
-            child: Text('Ok', style: TextStyle(fontWeight: FontWeight.bold,
-                fontSize: 20.0),),
+            child: Text(
+              'Ok',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+            ),
           )
         ],
       ),
@@ -204,9 +251,7 @@ class _NewVendor extends State<NewVendor>{
                     ],
                   ),
                   TextFormField(
-                    decoration: const InputDecoration(
-                        labelText: 'Name'
-                    ),
+                    decoration: const InputDecoration(labelText: 'Name'),
                     controller: _nameController,
                     validator: (value) {
                       if (value == null || value.length == 0) {
@@ -217,9 +262,7 @@ class _NewVendor extends State<NewVendor>{
                   ),
                   TextFormField(
                     maxLines: 6,
-                    decoration: const InputDecoration(
-                        labelText: 'About'
-                    ),
+                    decoration: const InputDecoration(labelText: 'About'),
                     controller: _aboutController,
                     keyboardType: TextInputType.text,
                     validator: (value) {
@@ -230,9 +273,8 @@ class _NewVendor extends State<NewVendor>{
                     },
                   ),
                   TextFormField(
-                    decoration: const InputDecoration(
-                        labelText: 'Floor Number'
-                    ),
+                    decoration:
+                        const InputDecoration(labelText: 'Floor Number'),
                     controller: _floorController,
                     keyboardType: TextInputType.number,
                     validator: (value) {
@@ -243,9 +285,7 @@ class _NewVendor extends State<NewVendor>{
                     },
                   ),
                   TextFormField(
-                    decoration: const InputDecoration(
-                        labelText: 'Shop Number'
-                    ),
+                    decoration: const InputDecoration(labelText: 'Shop Number'),
                     controller: _shopNumberController,
                     keyboardType: TextInputType.text,
                     validator: (value) {
@@ -371,9 +411,8 @@ class _NewVendor extends State<NewVendor>{
                     ],
                   ),
                   TextFormField(
-                    decoration: const InputDecoration(
-                        labelText: 'Contact Info'
-                    ),
+                    decoration:
+                        const InputDecoration(labelText: 'Contact Info'),
                     controller: _contactController,
                     keyboardType: TextInputType.text,
                     validator: (value) {
@@ -388,19 +427,23 @@ class _NewVendor extends State<NewVendor>{
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       FlatButton(
-                        onPressed: (){
+                        onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: Center(child: Text("Cancel"),),
+                        child: Center(
+                          child: Text("Cancel"),
+                        ),
                       ),
                       FlatButton(
-                        onPressed: (){
-                          if(_formKey.currentState.validate()){
+                        onPressed: () {
+                          if (_formKey.currentState.validate()) {
                             print("Inside Data");
                             _addVendor();
                           }
                         },
-                        child: Center(child: Text("Save"),),
+                        child: Center(
+                          child: Text("Save"),
+                        ),
                       ),
                     ],
                   ),
@@ -413,8 +456,8 @@ class _NewVendor extends State<NewVendor>{
     );
   }
 
-  Widget imageUpload(){
-    if(_imageUrl == null || _imageUrl.isEmpty){
+  Widget imageUpload() {
+    if (_imageUrl == null || _imageUrl.isEmpty) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -422,8 +465,7 @@ class _NewVendor extends State<NewVendor>{
           GalleryImpl(onImageSelectedFromCameraOrGallery),
         ],
       );
-    }
-    else{
+    } else {
       return Container(
         height: MediaQuery.of(context).size.height / 8,
         width: MediaQuery.of(context).size.height / 4,

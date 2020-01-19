@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:else_admin_two/event/AddEventScreen.dart';
+import 'package:else_admin_two/event/viewEvent.dart';
 import 'package:else_admin_two/firebaseUtil/database_manager.dart';
 import 'package:else_admin_two/utils/Contants.dart';
 import 'package:else_admin_two/utils/SizeConfig.dart';
@@ -43,7 +45,10 @@ class AllEventScreenState extends State<AllEventScreen> {
                           height: SizeConfig.blockSizeVertical * 24,
                           width: SizeConfig.blockSizeHorizontal * 96,
                           child: GestureDetector(
-                              onTap: () {},
+                              onTap: () {Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) => ViewSingleEvent(DatabaseManager.events[index])));},
                               child: CachedNetworkImage(
                                   fit: BoxFit.cover,
                                   imageUrl:
@@ -53,7 +58,15 @@ class AllEventScreenState extends State<AllEventScreen> {
                   ))),
             ],
           ),
-        ));
-    ;
+        ),
+      floatingActionButton: FloatingActionButton(onPressed: navigateAddEvent, child: Icon(Icons.add),),
+    );
+
+  }
+  navigateAddEvent(){
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => AddEventScreen()));
   }
 }
