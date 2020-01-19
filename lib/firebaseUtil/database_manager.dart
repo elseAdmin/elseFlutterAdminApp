@@ -15,7 +15,7 @@ class DatabaseManager {
   FirebaseStorage storageRef;
   Map<String, List> universeVsParticipatedEvents = HashMap();
   static Map activityTimelineMap;
-
+  static List<EventModel> events;
   DatabaseManager() {
     if (storageRef == null) {
       storageRef = FirebaseStorage.instance;
@@ -27,6 +27,24 @@ class DatabaseManager {
       baseDatabase =
           FirebaseDatabase.instance.reference().child(StartupData.dbreference);
     }
+  }
+
+  getAllEvents() async {
+      await getEventsDBRef()
+          .once()
+          .then((snapshot) {
+        if (snapshot.value.length != 0) {
+          events = List();
+          //print(snapshot.value);
+          snapshot.value.forEach((key, value) {
+            EventModel event = EventModel.fromMap(value);
+            events.add(event);
+          });
+        }
+      }).catchError((error) {
+        logger.i(error);
+      });
+      return events;
   }
 
   addEvent(EventModel event) async{

@@ -1,4 +1,6 @@
-import 'package:else_admin_two/event/AddEventScreen.dart';
+
+import 'package:else_admin_two/event/AllEventScreen.dart';
+import 'package:else_admin_two/firebaseUtil/database_manager.dart';
 import 'package:else_admin_two/shop/shop_screen.dart';
 import 'package:else_admin_two/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
@@ -30,11 +32,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   initState(){
+    SizeConfig().init(context);
     super.initState();
+    DatabaseManager().getAllEvents();
   }
   _redirectToEventPage() {
     Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => EventScreen()));
+        MaterialPageRoute(builder: (BuildContext context) => AllEventScreen()));
   }
 
   _redirectToShopPage() {
