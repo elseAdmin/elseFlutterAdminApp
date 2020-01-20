@@ -5,4 +5,11 @@ class BeaconData {
     this.major=major;
     this.minor=minor;
   }
+
+  toJson(){
+    return{
+      'major':this.major,
+      'minor':this.minor
+    };
+  }
 }

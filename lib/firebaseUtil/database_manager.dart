@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:else_admin_two/event/events_model.dart';
+import 'package:else_admin_two/event/online_submission_model.dart';
 import 'package:else_admin_two/utils/app_startup_data.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -15,6 +16,9 @@ class DatabaseManager {
   FirebaseStorage storageRef;
   Map<String, List> universeVsParticipatedEvents = HashMap();
   static Map activityTimelineMap;
+  static List<EventModel> events;
+  static List<OnlineEventSubmissionModel> submissions;
+  static Function(List<OnlineEventSubmissionModel>) submissionsFound;
 
   DatabaseManager() {
     if (storageRef == null) {
@@ -29,7 +33,28 @@ class DatabaseManager {
     }
   }
 
-  addEvent(EventModel event) async{
+  getAllEvents() async {
+      await getEventsDBRef()
+          .once()
+          .then((snapshot) {
+        if (snapshot.value.length != 0) {
+          events = List();
+          //print(snapshot.value);
+          snapshot.value.forEach((key, value) {
+            EventModel event = EventModel.fromMap(value);
+            events.add(event);
+          });
+        }
+      }).catchError((error) {
+        logger.i(error);
+      });
+      return events;
+  }
+
+  addEvent(EventModel event,File image) async{
+    String url = await uploadImageToStorage(event.uid,image);
+    event.url=url;
+    event.blurUrl = url;
     await getEventsDBRef().child(event.uid).set(event.toJson());
   }
 
@@ -74,5 +99,44 @@ class DatabaseManager {
     );
     final StorageTaskSnapshot downloadUrl = (await uploadTask.onComplete);
     final String url = (await downloadUrl.ref.getDownloadURL());
+    return url;
+  }
+
+  saveEvent(EventModel model, File image)  async {
+    if(image!=null){
+      String url = await uploadImageToStorage(model.uid, image);
+      model.url = url;
+      model.blurUrl = url;
+    }
+    await getEventsDBRef().child(model.uid).set(model.toJson());
+  }
+
+  deleteEvent(String uid) async{
+    await getEventsDBRef().child(uid).remove();
+  }
+
+  getSubmissionForEvent(String uid) async {
+    submissions = List();
+    await store
+        .collection(StartupData.dbreference)
+        .document("events")
+        .collection(uid)
+        .document("submissions")
+        .collection("allSubmissions").orderBy('participatedAt',descending : true).getDocuments().then((snapshot){
+          snapshot.documents.forEach((doc){
+            submissions.add(OnlineEventSubmissionModel(doc));
+          });
+    });
+    return submissionsFound(submissions);
+  }
+  updateSubmissionStatus(String status,String userId,String eventUid) async {
+    await store
+        .collection(StartupData.dbreference)
+        .document("events")
+        .collection(eventUid)
+        .document("submissions")
+        .collection("allSubmissions").document(userId).updateData({
+        'status':status
+    });
   }
 }

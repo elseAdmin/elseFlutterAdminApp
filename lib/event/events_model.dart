@@ -9,7 +9,6 @@ class EventModel extends BaseModel{
   DateTime endDate;
   String rules;
   int totalRules;
-  String id;
   String url;
   String blurUrl;
   String name;
@@ -17,8 +16,11 @@ class EventModel extends BaseModel{
   String uid;
   int observedDays;
   List<BeaconData> beaconDataList;
+  EventModel(){
 
-  EventModel(DataSnapshot snapshot){
+  }
+
+  EventModel.fromSnapshot(DataSnapshot snapshot){
     if(snapshot!=null) {
       this.description = snapshot.value['description'];
       this.startDate = DateTime.parse(snapshot.value['startDate']);
@@ -33,9 +35,7 @@ class EventModel extends BaseModel{
         BeaconData data = new BeaconData(list[i]['major'], list[i]['minor']);
         beaconDataList.add(data);
       }
-
-
-      this.id = snapshot.key;
+      this.beaconDataList = beaconDataList;
       this.url = snapshot.value['url'];
       this.name = snapshot.value['name'];
       this.status = snapshot.value['status'];
@@ -43,21 +43,48 @@ class EventModel extends BaseModel{
       this.uid = snapshot.value['uid'];
     }
   }
+  EventModel.fromMap(Map snapshot)
+      : this.description = snapshot['description'],
+        this.startDate = DateTime.parse(snapshot['startDate']),
+        this.endDate = DateTime.parse(snapshot["endDate"]),
+        this.rules = snapshot['rules'],
+        this.type = snapshot['type'],
+        this.observedDays = snapshot['observedDays'],
+        this.url = snapshot['url'],
+        this.name = snapshot['name'],
+        this.status = snapshot['status'],
+        this.blurUrl = snapshot['blurUrl'],
+        this.uid = snapshot['uid'],
+        this.beaconDataList = getListB(snapshot['beaconMeta']);
+
+  static getListB(snapshot) {
+    List list = snapshot;
+    List<BeaconData> beaconList = List();
+    for (int i = 0; i < list.length; i++) {
+      BeaconData data = new BeaconData(list[i]['major'], list[i]['minor']);
+      beaconList.add(data);
+    }
+    return beaconList;
+  }
+
+  /*
+  [0->{major-1,minor-1}]
+   */
 
   toJson(){
     return{
       "description":this.description,
-      "startDate":startDate.toString(),
-      "endDate":endDate.toString(),
-      "rules": rules,
-      "type":type ,
+      "startDate":this.startDate.toString(),
+      "endDate":this.endDate.toString(),
+      "rules": this.rules,
+      "type": this.type ,
       "observedDays": observedDays,
-      "url": url,
-      "name": name,
-      "status":status,
-      //"blurUrl": blurUrl,
-      "uid": uid,
-      //"beaconMeta": beaconDataList,
+      "url": this.url,
+      "name": this.name,
+      "status":this.status,
+      "blurUrl": this.blurUrl,
+      "uid": this.uid,
+      "beaconMeta": this.beaconDataList.map((beaconData) => beaconData.toJson()).toList(),
     };
   }
 }

@@ -1,5 +1,6 @@
+import 'package:else_admin_two/event/AllEventScreen.dart';
+import 'package:else_admin_two/firebaseUtil/database_manager.dart';
 import 'package:else_admin_two/deals/deal_list.dart';
-import 'package:else_admin_two/event/AddEventScreen.dart';
 import 'package:else_admin_two/shop/shop_screen.dart';
 import 'package:else_admin_two/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
@@ -32,10 +33,11 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   initState(){
     super.initState();
+    DatabaseManager().getAllEvents();
   }
-  _redirectToAddEventPage() {
+  _redirectToEventPage() {
     Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => AddEventScreen()));
+        MaterialPageRoute(builder: (BuildContext context) => AllEventScreen()));
   }
 
   _redirectToShopPage() {
@@ -59,37 +61,10 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView(
           padding: const EdgeInsets.all(3),
           children: <Widget>[
-            Container(
-              padding: EdgeInsets.only(
-              top: SizeConfig.blockSizeVertical * 1,
-              left: SizeConfig.blockSizeHorizontal * 2),
-              child: GestureDetector(
-                onTap: _redirectToAddEventPage,
-                child: Text("Add an event"),
-              ),
-            ),
-            Divider(
-              endIndent: SizeConfig.blockSizeHorizontal * 60,
-              color: Colors.black87,
-              height: SizeConfig.blockSizeVertical,
-            ),
-            Container(
-              padding: EdgeInsets.only(
-                  top: SizeConfig.blockSizeVertical * 1,
-                  left: SizeConfig.blockSizeHorizontal * 2),
-              child: GestureDetector(
-                child: Text("Add Shop"),
-              ),
-            ),
-            Divider(
-              endIndent: SizeConfig.blockSizeHorizontal * 60,
-              color: Colors.black87,
-              height: SizeConfig.blockSizeVertical,
-            ),
             SizedBox(
               height: MediaQuery.of(context).size.height/12,
               child: RaisedButton(
-                onPressed: _redirectToAddEventPage,
+                onPressed: _redirectToEventPage,
                 child: Text("Events"),
                 color: Colors.white,
                 textColor: Colors.green,
