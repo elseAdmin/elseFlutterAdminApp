@@ -1,57 +1,132 @@
-import 'dart:collection';
-
+import 'package:else_admin_two/deals/models/deals_model.dart';
 import 'package:else_admin_two/firebaseUtil/firebase_api.dart';
 import 'package:else_admin_two/firebaseUtil/storage_manager.dart';
-import 'package:else_admin_two/shop/models/shop_model.dart';
 import 'package:else_admin_two/utils/Contants.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:multiselect_formfield/multiselect_formfield.dart';
 
 import '../utils/app_startup_data.dart';
 import '../utils/pick_gallery_impl.dart';
 
-class NewVendor extends StatefulWidget{
-  final ShopModel shopModel;
-  NewVendor(this.shopModel);
+class NewDeal extends StatefulWidget{
+  final DealModel dealModel;
+  NewDeal(this.dealModel);
 
   @override
-  _NewVendor createState() => _NewVendor();
+  _NewDeal createState() => _NewDeal();
 }
 
-class _NewVendor extends State<NewVendor>{
+class _NewDeal extends State<NewDeal>{
   final _formKey = GlobalKey<FormState>();
-  final StorageManager _storageManager = StorageManager(StartupData.dbreference+'/category/shops/');
-  FireBaseApi _fireBaseApi = FireBaseApi("shopStaticData");
-  TextEditingController _aboutController = TextEditingController();
+  final StorageManager _storageManager = StorageManager(StartupData.dbreference+'/background/dealBackground/');
+  FireBaseApi _fireBaseApi = FireBaseApi("dealsStaticData");
   TextEditingController _nameController = TextEditingController();
-  TextEditingController _floorController = TextEditingController();
-  TextEditingController _shopNumberController = TextEditingController();
-  TextEditingController _contactController = TextEditingController();
-  List _category;
-  String _imageUrl;
-  String _openTime;
-  String _closeTime;
+  TextEditingController _shortDetailController = TextEditingController();
+  TextEditingController _uidController = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
+  TextEditingController _shopNameController = TextEditingController();
+  TextEditingController _couponController = TextEditingController();
+  List<TextEditingController> _detailController = [];
+  TextEditingController detailsController = TextEditingController();
+  int countDetails = 0;
+
+  List<TextEditingController> _tncController = [];
+  TextEditingController tncController = TextEditingController();
+  int countTnc = 0;
+
   String _universe;
-  List<String> timeList = ["1 a.m", "2 a.m", "3 a.m", "4 a.m", "5 a.m", "6 a.m", "7 a.m", "8 a.m", "9 a.m", "10 a.m", "11 a.m", "12 noon",
-    "1 p.m", "2 p.m", "3 p.m", "4 p.m", "5 p.m", "6 p.m", "7 p.m", "8 p.m", "9 p.m", "10 p.m", "11 p.m", "12 midnight"];
+  String _imageUrl;
+  String _dealStatus;
+  DateTime selectedDate = DateTime.now();
+  List<Widget> _detailsChildren = [];
+  List<Widget> _tncChildren = [];
 
 
   @override
   void initState() {
     super.initState();
-    if(widget.shopModel != null){
-      _nameController.text = widget.shopModel.name;
-      _aboutController.text = widget.shopModel.about;
-      _floorController.text = widget.shopModel.floor.toString();
-      _shopNumberController.text = widget.shopModel.shopNo;
-      _category = widget.shopModel.category;
-      _openTime = widget.shopModel.openTime;
-      _closeTime = widget.shopModel.closeTime;
-      _contactController.text = widget.shopModel.contactInfo;
-      _imageUrl = widget.shopModel.imageUrl;
+    _detailController.add(detailsController);
+    _tncController.add(tncController);
+    if(widget.dealModel != null){
+      _shopNameController.text = widget.dealModel.shopName;
+      _imageUrl = widget.dealModel.url;
+      _nameController.text = widget.dealModel.name;
+      _shortDetailController.text = widget.dealModel.shortDetails;
+      _uidController.text = widget.dealModel.uid;
+      _couponController.text = widget.dealModel.couponCode;
+      _dealStatus = widget.dealModel.status;
+      selectedDate = DateTime.fromMicrosecondsSinceEpoch(int.parse(widget.dealModel.validity));
+      _dateController.text = selectedDate.day.toString() + '/' + selectedDate.month.toString() + '/' + selectedDate.year.toString();
+      _tncController[0].text = widget.dealModel.tnc[0];
+      _detailController[0].text = widget.dealModel.details[0];
+      for(int i=1; i<widget.dealModel.tnc.length; ++i){
+        _addTnc(widget.dealModel.tnc[i]);
+      }
+      for(int i=1; i<widget.dealModel.details.length; ++i){
+        _addDetails(widget.dealModel.details[i]);
+      }
       setState(() {});
     }
+  }
+
+  _addDetails(String detail){
+    setState(() => ++countDetails);
+    _detailController.length = countDetails+1;
+    _detailController[countDetails] = TextEditingController();
+    if(detail != null){
+      _detailController[countDetails].text = detail;
+    }
+    _detailsChildren = List.from(_detailsChildren)
+      ..add(
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: 'Details',
+            ),
+            controller: _detailController[countDetails],
+            validator: (value) {
+              if (value == null || value.length == 0) {
+                return 'Please enter some text';
+              }
+              return null;
+            },
+          )
+      );
+  }
+
+  _addTnc(String tnc){
+    setState(() => ++countTnc);
+    _tncController.length = countTnc+1;
+    _tncController[countTnc] = TextEditingController();
+    if(tnc != null){
+      _tncController[countTnc].text = tnc;
+    }
+    _tncChildren = List.from(_tncChildren)
+      ..add(
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: 'Terms and Condition',
+            ),
+            controller: _tncController[countTnc],
+            validator: (value) {
+              if (value == null || value.length == 0) {
+                return 'Please enter some text';
+              }
+              return null;
+            },
+          )
+      );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDate)
+      setState(() {
+        selectedDate = picked;
+        _dateController.text = selectedDate.day.toString() + '/' + selectedDate.month.toString() + '/' + selectedDate.year.toString();
+      });
   }
 
   onImageSelectedFromCameraOrGallery(file) {
@@ -80,7 +155,8 @@ class _NewVendor extends State<NewVendor>{
                       ),
                       FlatButton(
                         onPressed: (){
-                          String path = StartupData.dbreference+'/category/shops/${_nameController.text}';
+                          ///unityOneRohini/background/dealBackground
+                          String path = StartupData.dbreference+'/background/dealBackground/${_nameController.text}';
                           _storageManager.addFilePath(path);
                           _storageManager.uploadImageUrl(file).then((uploadUrl){
                             setState(() {
@@ -103,32 +179,40 @@ class _NewVendor extends State<NewVendor>{
     }
     else{
       showDialog(
-          context: context,
-          builder: (BuildContext context){
-            return Card(
-              child: ListTile(
-                title: Text('Either Universe Data or Shop Name not present'),
-                subtitle: FlatButton(
-                  child: Center(child: Text("OK"),),
-                  onPressed: (){
-                    Navigator.pop(context);
-                  },
-                ),
+        context: context,
+        builder: (BuildContext context){
+          return Card(
+            child: ListTile(
+              title: Text('Either Universe Data or Deal Name not present'),
+              subtitle: FlatButton(
+                child: Center(child: Text("OK"),),
+                onPressed: (){
+                  Navigator.pop(context);
+                },
               ),
-            );
-          }
+            ),
+          );
+        }
       );
     }
   }
 
-  void _addVendor() async{
-    ShopModel shopModel = new ShopModel(_nameController.text.toLowerCase(),_aboutController.text,
-    int.parse(_floorController.text), _shopNumberController.text, _category, _openTime, _closeTime,
-    _contactController.text, _imageUrl);
+  _addDeals() async{
 
-    String _shopKey = _nameController.text.replaceAll(' ', '');
+    List tnc = List();
+    List details = List();
+    for(TextEditingController tncController in _tncController){
+      tnc.add(tncController.text);
+    }
+    for(TextEditingController detailController in _detailController){
+      details.add(detailController.text);
+    }
 
-    _fireBaseApi.updateDocument(shopModel.toJson(), _shopKey.toLowerCase()).then((data){
+    DealModel dealModel = new DealModel(tnc, selectedDate.millisecondsSinceEpoch.toString(), _shopNameController.text,
+        _imageUrl, _imageUrl, _nameController.text, _shortDetailController.text,
+        details, _dealStatus, _uidController.text.toUpperCase(), _couponController.text);
+
+    _fireBaseApi.updateDocument(dealModel.toJson(), _uidController.text.toUpperCase()).then((data){
       showModalBottomSheet(context: context, builder: (context){
         return getModal();
       });
@@ -177,7 +261,7 @@ class _NewVendor extends State<NewVendor>{
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "New Shop Register",
+          "New Deal Register",
           style: TextStyle(
             color: Constants.titleBarTextColor,
             fontSize: 18,
@@ -236,11 +320,10 @@ class _NewVendor extends State<NewVendor>{
                     },
                   ),
                   TextFormField(
-                    maxLines: 6,
                     decoration: const InputDecoration(
-                        labelText: 'About'
+                        labelText: 'UID'
                     ),
-                    controller: _aboutController,
+                    controller: _uidController,
                     keyboardType: TextInputType.text,
                     validator: (value) {
                       if (value == null || value.length == 0) {
@@ -251,93 +334,23 @@ class _NewVendor extends State<NewVendor>{
                   ),
                   TextFormField(
                     decoration: const InputDecoration(
-                        labelText: 'Floor Number'
+                        labelText: 'Short Detail'
                     ),
-                    controller: _floorController,
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.length == 0) {
-                        return 'Please enter some text';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                        labelText: 'Shop Number'
-                    ),
-                    controller: _shopNumberController,
+                    controller: _shortDetailController,
                     keyboardType: TextInputType.text,
                     validator: (value) {
                       if (value == null || value.length == 0) {
                         return 'Please enter some text';
                       }
                       return null;
-                    },
-                  ),
-                  MultiSelectFormField(
-                    autovalidate: false,
-                    titleText: 'Category',
-                    validator: (value) {
-                      if (value == null || value.length == 0) {
-                        return 'Please select one or more options';
-                      }
-                      return null;
-                    },
-                    dataSource: [
-                      {
-                        "display": "FASHION",
-                        "value": "fashion",
-                      },
-                      {
-                        "display": "BEAUTY",
-                        "value": "beauty",
-                      },
-                      {
-                        "display": "KIDS",
-                        "value": "kids",
-                      },
-                      {
-                        "display": "ELECTRONICS",
-                        "value": "electronics",
-                      },
-                      {
-                        "display": "HOME FURNISHING",
-                        "value": "home",
-                      },
-                      {
-                        "display": "RESTAURANTS",
-                        "value": "restaurants",
-                      },
-                      {
-                        "display": "PUBS",
-                        "value": "pubs",
-                      },
-                      {
-                        "display": "ENTERTAINMENT",
-                        "value": "entertainment",
-                      },
-                    ],
-                    textField: 'display',
-                    valueField: 'value',
-                    okButtonLabel: 'OK',
-                    cancelButtonLabel: 'CANCEL',
-                    // required: true,
-                    hintText: 'Please choose one or more',
-                    value: _category,
-                    onSaved: (value) {
-                      if (value == null) return;
-                      setState(() {
-                        _category = value;
-                      });
                     },
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text("Open Time"),
+                      Text("Status"),
                       DropdownButton<String>(
-                        value: _openTime,
+                        value: _dealStatus,
                         icon: Icon(Icons.arrow_downward),
                         iconSize: 24,
                         elevation: 16,
@@ -348,10 +361,10 @@ class _NewVendor extends State<NewVendor>{
                         ),
                         onChanged: (String newValue) {
                           setState(() {
-                            _openTime = newValue;
+                            _dealStatus = newValue;
                           });
                         },
-                        items: timeList
+                        items: <String>['active','inactive']
                             .map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
@@ -364,37 +377,96 @@ class _NewVendor extends State<NewVendor>{
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text("Close Time"),
-                      DropdownButton<String>(
-                        value: _closeTime,
-                        icon: Icon(Icons.arrow_downward),
-                        iconSize: 24,
-                        elevation: 16,
-                        style: TextStyle(color: Colors.black),
-                        underline: Container(
-                          height: 2,
-                          color: Colors.black12,
-                        ),
-                        onChanged: (String newValue) {
-                          setState(() {
-                            _closeTime = newValue;
-                          });
-                        },
-                        items: timeList
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                      )
+                      Text("Validity"),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 3,
+                            child: TextFormField(
+                              decoration: const InputDecoration(
+                                labelText: 'Validity',
+                              ),
+                              controller: _dateController,
+                              enabled: false,
+                              validator: (value) {
+                                if (value == null || value.length == 0) {
+                                  return 'Please enter some text';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          FlatButton(
+                            onPressed: () => _selectDate(context),
+                            child: Icon(Icons.date_range),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                   TextFormField(
                     decoration: const InputDecoration(
-                        labelText: 'Contact Info'
+                        labelText: 'Shop Name'
                     ),
-                    controller: _contactController,
+                    controller: _shopNameController,
+                    keyboardType: TextInputType.text,
+                    validator: (value) {
+                      if (value == null || value.length == 0) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Details',
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.add_circle),
+                        onPressed: (){
+                          _addDetails(null);
+                        },
+                      )
+                    ),
+                    validator: (value) {
+                      if (value == null || value.length == 0) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+                    controller: _detailController[0],
+                  ),
+                  ListView(
+                    shrinkWrap: true,
+                    children: _detailsChildren,
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Terms and Condition',
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.add_circle),
+                        onPressed: (){
+                          _addTnc(null);
+                        },
+                      )
+                    ),
+                    controller: _tncController[0],
+                    validator: (value) {
+                      if (value == null || value.length == 0) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+                  ),
+                  ListView(
+                    shrinkWrap: true,
+                    children: _tncChildren,
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                        labelText: 'Coupon Code'
+                    ),
+                    controller: _couponController,
                     keyboardType: TextInputType.text,
                     validator: (value) {
                       if (value == null || value.length == 0) {
@@ -417,7 +489,7 @@ class _NewVendor extends State<NewVendor>{
                         onPressed: (){
                           if(_formKey.currentState.validate()){
                             print("Inside Data");
-                            _addVendor();
+                            _addDeals();
                           }
                         },
                         child: Center(child: Text("Save"),),
@@ -455,4 +527,5 @@ class _NewVendor extends State<NewVendor>{
       );
     }
   }
+
 }

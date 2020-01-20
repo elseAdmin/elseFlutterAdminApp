@@ -1,3 +1,4 @@
+import 'package:else_admin_two/deals/deal_list.dart';
 import 'package:else_admin_two/event/AddEventScreen.dart';
 import 'package:else_admin_two/shop/shop_screen.dart';
 import 'package:else_admin_two/utils/SizeConfig.dart';
@@ -40,6 +41,11 @@ class _MyHomePageState extends State<MyHomePage> {
   _redirectToShopPage() {
     Navigator.push(context,
         MaterialPageRoute(builder: (BuildContext context) => ShopScreen()));
+  }
+
+  _redirectToDealsPage() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => DealSection()));
   }
 
   @override
@@ -98,6 +104,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 textColor: Colors.red,
               ),
             ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height/12,
+              child: RaisedButton(
+                onPressed: _redirectToDealsPage,
+                child: Text("Deals"),
+                color: Colors.white,
+                textColor: Colors.green,
+              ),
+            )
           ],
         ),
       ),
