@@ -1,9 +1,9 @@
 import 'dart:collection';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:else_admin_two/event/events_model.dart';
+import 'package:else_admin_two/event/online_submission_model.dart';
 import 'package:else_admin_two/utils/app_startup_data.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -17,6 +17,9 @@ class DatabaseManager {
   Map<String, List> universeVsParticipatedEvents = HashMap();
   static Map activityTimelineMap;
   static List<EventModel> events;
+  static List<OnlineEventSubmissionModel> submissions;
+  static Function(List<OnlineEventSubmissionModel>) submissionsFound;
+
   DatabaseManager() {
     if (storageRef == null) {
       storageRef = FirebaseStorage.instance;
@@ -110,5 +113,30 @@ class DatabaseManager {
 
   deleteEvent(String uid) async{
     await getEventsDBRef().child(uid).remove();
+  }
+
+  getSubmissionForEvent(String uid) async {
+    submissions = List();
+    await store
+        .collection(StartupData.dbreference)
+        .document("events")
+        .collection(uid)
+        .document("submissions")
+        .collection("allSubmissions").orderBy('participatedAt',descending : true).getDocuments().then((snapshot){
+          snapshot.documents.forEach((doc){
+            submissions.add(OnlineEventSubmissionModel(doc));
+          });
+    });
+    return submissionsFound(submissions);
+  }
+  updateSubmissionStatus(String status,String userId,String eventUid) async {
+    await store
+        .collection(StartupData.dbreference)
+        .document("events")
+        .collection(eventUid)
+        .document("submissions")
+        .collection("allSubmissions").document(userId).updateData({
+        'status':status
+    });
   }
 }

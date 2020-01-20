@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:else_admin_two/event/BackgroundPicture.dart';
+import 'package:else_admin_two/event/SubmissionScreen.dart';
 import 'package:else_admin_two/event/beacon_model.dart';
 import 'package:else_admin_two/event/events_model.dart';
 import 'package:else_admin_two/firebaseUtil/database_manager.dart';
@@ -27,6 +28,7 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
   List<String> statusList;
   List<String> typeList;
   String _startDate, _endDate, _type, _status;
+  bool isOnline = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -47,6 +49,16 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
     typeList.add("Online");
     typeList.add("Offline");
     typeList.add("Location");
+
+    if (widget.event.type.compareTo('Online') == 0) {
+      isOnline = true;
+    }
+  }
+
+  viewSubmissions() {
+    DatabaseManager().getSubmissionForEvent(widget.event.uid);
+    Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => SubmissionScreen(widget.event)));
   }
 
   @override
@@ -67,6 +79,18 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
         ),
         body: ListView(
           children: <Widget>[
+            Visibility(
+                visible: isOnline,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                  GestureDetector(
+                      child: Text(
+                        "View Submission",
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      onTap: viewSubmissions)
+                ])),
             Form(
               key: _formKey,
               child: Column(
@@ -94,7 +118,7 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
                   ),
                   TextFormField(
                     decoration:
-                    const InputDecoration(labelText: 'Observed days'),
+                        const InputDecoration(labelText: 'Observed days'),
                     controller: _observedDaysController,
                     validator: (value) {
                       if (value == null || value.length == 0) {
@@ -104,8 +128,7 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
                     },
                   ),
                   TextFormField(
-                    decoration:
-                    const InputDecoration(labelText: 'Major'),
+                    decoration: const InputDecoration(labelText: 'Major'),
                     controller: _majorController,
                     validator: (value) {
                       if (value == null || value.length == 0) {
@@ -115,8 +138,7 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
                     },
                   ),
                   TextFormField(
-                    decoration:
-                    const InputDecoration(labelText: 'Minor'),
+                    decoration: const InputDecoration(labelText: 'Minor'),
                     controller: _minorController,
                     validator: (value) {
                       if (value == null || value.length == 0) {
@@ -205,18 +227,26 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
                         BackgroundPicture(image),
                         GalleryImpl(onImageSelectedFromCameraOrGallery)
                       ]),
-                  Row(mainAxisAlignment:MainAxisAlignment.spaceEvenly,children: <Widget>[
-                    GestureDetector(child: Text('delete'),onTap: deleteEvent,),
-                    GestureDetector(
-                    child: Text('save'),
-                    onTap: saveChanges,
-                  )],)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      GestureDetector(
+                        child: Text('delete'),
+                        onTap: deleteEvent,
+                      ),
+                      GestureDetector(
+                        child: Text('save'),
+                        onTap: saveChanges,
+                      )
+                    ],
+                  )
                 ],
               ),
             )
           ],
         ));
   }
+
   deleteEvent() async {
     await DatabaseManager().deleteEvent(widget.event.uid);
 
@@ -233,7 +263,8 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
     model.status = _status;
     model.name = _nameController.text;
     List<BeaconData> beacons = List();
-    BeaconData beacon = BeaconData( int.parse(_majorController.text), int.parse(_minorController.text));
+    BeaconData beacon = BeaconData(
+        int.parse(_majorController.text), int.parse(_minorController.text));
     beacons.add(beacon);
     model.beaconDataList = beacons;
     await DatabaseManager().saveEvent(model, image);
