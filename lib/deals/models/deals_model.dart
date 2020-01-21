@@ -2,7 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 
 class DealModel {
   List tnc;
-  String validity;
+  DateTime validity;
   String shopName;
   String url;
   String blurUrl;
@@ -19,7 +19,7 @@ class DealModel {
 
   DealModel.fromMap(Map snapshot)
       : this.tnc = snapshot['tnc'],
-        this.validity = snapshot['validity'],
+        this.validity = DateTime.fromMillisecondsSinceEpoch(snapshot['validity']),
         this.shopName = snapshot['shopName'],
         this.shortDetails = snapshot['shortDetails'],
         this.details = snapshot['details'],
@@ -33,7 +33,7 @@ class DealModel {
   DealModel.fromSnapshot(DataSnapshot snapshot) {
     this.tnc = snapshot.value['tnc'];
     this.shopName = snapshot.value['shopName'];
-    this.validity = snapshot.value['validity'];
+    this.validity = DateTime.fromMillisecondsSinceEpoch(snapshot.value['validity']);
     this.shortDetails = snapshot.value['shortDetails'];
     this.details = snapshot.value['details'];
     this.url = snapshot.value['url'];
@@ -48,7 +48,7 @@ class DealModel {
     return {
       "tnc":tnc,
       "shopName":shopName,
-      "validity":validity,
+      "validity":validity.millisecondsSinceEpoch,
       "shortDetails":shortDetails,
       "details":details,
       "url":url,

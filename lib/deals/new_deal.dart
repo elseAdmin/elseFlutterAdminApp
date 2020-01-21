@@ -54,7 +54,7 @@ class _NewDeal extends State<NewDeal>{
       _uidController.text = widget.dealModel.uid;
       _couponController.text = widget.dealModel.couponCode;
       _dealStatus = widget.dealModel.status;
-      selectedDate = DateTime.fromMicrosecondsSinceEpoch(int.parse(widget.dealModel.validity));
+      selectedDate = widget.dealModel.validity;
       _dateController.text = selectedDate.day.toString() + '/' + selectedDate.month.toString() + '/' + selectedDate.year.toString();
       _tncController[0].text = widget.dealModel.tnc[0];
       _detailController[0].text = widget.dealModel.details[0];
@@ -208,7 +208,7 @@ class _NewDeal extends State<NewDeal>{
       details.add(detailController.text);
     }
 
-    DealModel dealModel = new DealModel(tnc, selectedDate.millisecondsSinceEpoch.toString(), _shopNameController.text,
+    DealModel dealModel = new DealModel(tnc, selectedDate, _shopNameController.text,
         _imageUrl, _imageUrl, _nameController.text, _shortDetailController.text,
         details, _dealStatus, _uidController.text.toUpperCase(), _couponController.text);
 
@@ -437,6 +437,7 @@ class _NewDeal extends State<NewDeal>{
                     controller: _detailController[0],
                   ),
                   ListView(
+                    physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     children: _detailsChildren,
                   ),
@@ -459,6 +460,7 @@ class _NewDeal extends State<NewDeal>{
                     },
                   ),
                   ListView(
+                    physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     children: _tncChildren,
                   ),
