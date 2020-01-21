@@ -20,6 +20,9 @@ class DatabaseManager {
   static List<OnlineEventSubmissionModel> submissions;
   static Function(List<OnlineEventSubmissionModel>) submissionsFound;
 
+  static List<OnlineEventSubmissionModel> approvedSubmissions;
+  static Function(List<OnlineEventSubmissionModel>) approvedSubmissionsFound;
+
   DatabaseManager() {
     if (storageRef == null) {
       storageRef = FirebaseStorage.instance;
@@ -34,30 +37,27 @@ class DatabaseManager {
   }
 
   getAllEvents() async {
-      await getEventsDBRef()
-          .once()
-          .then((snapshot) {
-        if (snapshot.value.length != 0) {
-          events = List();
-          //print(snapshot.value);
-          snapshot.value.forEach((key, value) {
-            EventModel event = EventModel.fromMap(value);
-            events.add(event);
-          });
-        }
-      }).catchError((error) {
-        logger.i(error);
-      });
-      return events;
+    await getEventsDBRef().once().then((snapshot) {
+      if (snapshot.value.length != 0) {
+        events = List();
+        //print(snapshot.value);
+        snapshot.value.forEach((key, value) {
+          EventModel event = EventModel.fromMap(value);
+          events.add(event);
+        });
+      }
+    }).catchError((error) {
+      logger.i(error);
+    });
+    return events;
   }
 
-  addEvent(EventModel event,File image) async{
-    String url = await uploadImageToStorage(event.uid,image);
-    event.url=url;
+  addEvent(EventModel event, File image) async {
+    String url = await uploadImageToStorage(event.uid, image);
+    event.url = url;
     event.blurUrl = url;
     await getEventsDBRef().child(event.uid).set(event.toJson());
   }
-
 
   DatabaseReference getEventsDBRef() {
     return baseDatabase.child('eventStaticData');
@@ -83,7 +83,7 @@ class DatabaseManager {
     return storageRef;
   }
 
-  uploadImageToStorage(String uid,File image) async{
+  uploadImageToStorage(String uid, File image) async {
     StorageReference ref = storageRef
         .ref()
         .child(StartupData.dbreference)
@@ -102,8 +102,8 @@ class DatabaseManager {
     return url;
   }
 
-  saveEvent(EventModel model, File image)  async {
-    if(image!=null){
+  saveEvent(EventModel model, File image) async {
+    if (image != null) {
       String url = await uploadImageToStorage(model.uid, image);
       model.url = url;
       model.blurUrl = url;
@@ -111,7 +111,7 @@ class DatabaseManager {
     await getEventsDBRef().child(model.uid).set(model.toJson());
   }
 
-  deleteEvent(String uid) async{
+  deleteEvent(String uid) async {
     await getEventsDBRef().child(uid).remove();
   }
 
@@ -122,21 +122,58 @@ class DatabaseManager {
         .document("events")
         .collection(uid)
         .document("submissions")
-        .collection("allSubmissions").orderBy('participatedAt',descending : true).getDocuments().then((snapshot){
-          snapshot.documents.forEach((doc){
-            submissions.add(OnlineEventSubmissionModel(doc));
-          });
+        .collection("allSubmissions")
+        .orderBy('participatedAt', descending: true)
+        .getDocuments()
+        .then((snapshot) {
+      snapshot.documents.forEach((doc) {
+        submissions.add(OnlineEventSubmissionModel(doc));
+      });
     });
     return submissionsFound(submissions);
   }
-  updateSubmissionStatus(String status,String userId,String eventUid) async {
+
+  getApprovedSubmissionForEvent(String uid) async {
+    approvedSubmissions = List();
+    await store
+        .collection(StartupData.dbreference)
+        .document("events")
+        .collection(uid)
+        .document("submissions")
+        .collection("allSubmissions")
+        .where('status', isEqualTo: 'Approved')
+        .orderBy('participatedAt', descending: true)
+        .getDocuments()
+        .then((snapshot) {
+      snapshot.documents.forEach((doc) {
+        approvedSubmissions.add(OnlineEventSubmissionModel(doc));
+      });
+    });
+    return approvedSubmissionsFound(approvedSubmissions);
+  }
+
+  updateSubmissionStatus(String status, String userId, String eventUid) async {
     await store
         .collection(StartupData.dbreference)
         .document("events")
         .collection(eventUid)
         .document("submissions")
-        .collection("allSubmissions").document(userId).updateData({
-        'status':status
+        .collection("allSubmissions")
+        .document(userId)
+        .updateData({'status': status});
+  }
+
+  markSubmissionWinner(OnlineEventSubmissionModel model, String uid) async{
+    await store
+        .collection(StartupData.dbreference)
+        .document("events")
+        .collection(uid)
+        .document("submissions")
+        .collection("winnerSubmission").add({
+      'userUid':model.userUid,
+      'imageUrl':model.imageUrl,
+      'participatedAt':model.participatedAt,
+      'markedWinnerAt':DateTime.now().millisecondsSinceEpoch
     });
   }
 }

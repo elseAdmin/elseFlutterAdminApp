@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:else_admin_two/event/ApprovedSubmissionDialog.dart';
 import 'package:else_admin_two/event/SubmissionDIalog.dart';
 import 'package:else_admin_two/event/events_model.dart';
 import 'package:else_admin_two/event/online_submission_model.dart';
@@ -6,24 +7,24 @@ import 'package:else_admin_two/firebaseUtil/database_manager.dart';
 import 'package:else_admin_two/utils/Contants.dart';
 import 'package:flutter/material.dart';
 
-class SubmissionScreen extends StatefulWidget {
+class ApprovedSubmissionScreen extends StatefulWidget {
   final EventModel event;
-  SubmissionScreen(this.event);
+  ApprovedSubmissionScreen(this.event);
   @override
-  createState() => SubmissionScreenState();
+  createState() => ApprovedSubmissionScreenState();
 }
 
-class SubmissionScreenState extends State<SubmissionScreen> {
+class ApprovedSubmissionScreenState extends State<ApprovedSubmissionScreen> {
   List<OnlineEventSubmissionModel> submissions;
 
   @override
   void initState() {
     super.initState();
-    DatabaseManager.submissionsFound = submissionsFound;
-    submissions = DatabaseManager.submissions;
+    DatabaseManager.approvedSubmissionsFound = approvedSubmissionsFound;
+    submissions = DatabaseManager.approvedSubmissions;
   }
 
-  submissionsFound(List<OnlineEventSubmissionModel> foundSubmissions) {
+  approvedSubmissionsFound(List<OnlineEventSubmissionModel> foundSubmissions) {
     setState(() {
       submissions = foundSubmissions;
     });
@@ -39,7 +40,7 @@ class SubmissionScreenState extends State<SubmissionScreen> {
             icon: Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () => Navigator.of(context).pop(),
           ),
-          title: Text("Submissions",
+          title: Text("Approved Submissions",
               style: TextStyle(
                 color: Constants.titleBarTextColor,
                 fontSize: 18,
@@ -67,15 +68,11 @@ class SubmissionScreenState extends State<SubmissionScreen> {
   viewSubmission(OnlineEventSubmissionModel model) {
     showDialog(
         context: context,
-        builder: (BuildContext context) => SubmissionDialogue(model,onReject,onApproved));
+        builder: (BuildContext context) => ApprovedSubmissionDialogue(model,onSelected));
   }
 
-  onApproved(String userUid){
-    DatabaseManager().updateSubmissionStatus('Approved',userUid,widget.event.uid);
+  onSelected(OnlineEventSubmissionModel model) async{
+    await DatabaseManager().markSubmissionWinner(model,widget.event.uid);
     Navigator.of(context, rootNavigator: true).pop();
-  }
-  onReject(String userUid){
-    DatabaseManager().updateSubmissionStatus('Rejected',userUid,widget.event.uid);
-   Navigator.of(context, rootNavigator: true).pop();
   }
 }

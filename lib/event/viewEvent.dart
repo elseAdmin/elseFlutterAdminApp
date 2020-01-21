@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:else_admin_two/event/ApprovedSubmissions.dart';
 import 'package:else_admin_two/event/BackgroundPicture.dart';
 import 'package:else_admin_two/event/SubmissionScreen.dart';
 import 'package:else_admin_two/event/beacon_model.dart';
@@ -61,6 +62,12 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
         MaterialPageRoute(builder: (BuildContext context) => SubmissionScreen(widget.event)));
   }
 
+  selectWinner(){
+    DatabaseManager().getApprovedSubmissionForEvent(widget.event.uid);
+    Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => ApprovedSubmissionScreen(widget.event)));
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -91,6 +98,18 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
                       ),
                       onTap: viewSubmissions)
                 ])),
+            Visibility(
+                visible: isOnline,
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      GestureDetector(
+                          child: Text(
+                            "select winner",
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          onTap: selectWinner)
+                    ])),
             Form(
               key: _formKey,
               child: Column(
