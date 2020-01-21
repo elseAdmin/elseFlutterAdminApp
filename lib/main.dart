@@ -1,6 +1,7 @@
 import 'package:else_admin_two/event/AllEventScreen.dart';
 import 'package:else_admin_two/firebaseUtil/database_manager.dart';
 import 'package:else_admin_two/deals/deal_list.dart';
+import 'package:else_admin_two/requests/request_page.dart';
 import 'package:else_admin_two/shop/shop_screen.dart';
 import 'package:else_admin_two/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +51,11 @@ class _MyHomePageState extends State<MyHomePage> {
         MaterialPageRoute(builder: (BuildContext context) => DealSection()));
   }
 
+  _redirectToRequestsPage() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => RequestPage()));
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -67,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: _redirectToEventPage,
                 child: Text("Events"),
                 color: Colors.white,
-                textColor: Colors.green,
+                textColor: Colors.brown,
               ),
             ),
             SizedBox(
@@ -86,6 +92,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Text("Deals"),
                 color: Colors.white,
                 textColor: Colors.green,
+              ),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height/12,
+              child: RaisedButton(
+                onPressed: _redirectToRequestsPage,
+                child: Text("Requests"),
+                color: Colors.white,
+                textColor: Colors.blue,
               ),
             )
           ],
