@@ -30,10 +30,18 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
   List<String> typeList;
   String _startDate, _endDate, _type, _status;
   bool isOnline = false;
+
+  List<TextEditingController> ruleControllers = [];
+  TextEditingController ruleController = TextEditingController();
+  int ruleCount = 0;
+  List<Widget> ruleChildren = [];
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    ruleControllers.add(ruleController);
+
     _nameController.text = widget.event.name;
     _descriptionController.text = widget.event.description;
     _observedDaysController.text = widget.event.observedDays.toString();
@@ -50,10 +58,13 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
     typeList.add("Online");
     typeList.add("Offline");
     typeList.add("Location");
-
+    for(int i=0; i<widget.event.rules.length; ++i){
+      _addRule(widget.event.rules[i]);
+    }
     if (widget.event.type.compareTo('Online') == 0) {
       isOnline = true;
     }
+
   }
 
   viewSubmissions() {
@@ -166,6 +177,29 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
                       return null;
                     },
                   ),
+                  TextFormField(
+                    decoration: InputDecoration(
+                        labelText: 'Rules',
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.add_circle),
+                          onPressed: (){
+                            _addRule(null);
+                          },
+                        )
+                    ),
+                    controller: ruleControllers[0],
+                    validator: (value) {
+                      if (value == null || value.length == 0) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+                  ),
+                  ListView(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    children: ruleChildren,
+                  ),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
@@ -273,6 +307,10 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
   }
 
   saveChanges() async {
+    List rules = List();
+    for(TextEditingController ruleController in ruleControllers){
+      rules.add(ruleController.text);
+    }
     EventModel model = widget.event;
     model.observedDays = int.parse(_observedDaysController.text);
     model.type = _type;
@@ -280,6 +318,7 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
     model.startDate = DateTime.parse(_startDate);
     model.description = _descriptionController.text;
     model.status = _status;
+    model.rules=rules;
     model.name = _nameController.text;
     List<BeaconData> beacons = List();
     BeaconData beacon = BeaconData(
@@ -288,6 +327,30 @@ class ViewSingleEventState extends State<ViewSingleEvent> {
     model.beaconDataList = beacons;
     await DatabaseManager().saveEvent(model, image);
     Navigator.pop(context);
+  }
+
+  _addRule(String rule){
+    setState(() => ++ruleCount);
+    ruleControllers.length = ruleCount+1;
+    ruleControllers[ruleCount] = TextEditingController();
+    if(rule != null){
+      ruleControllers[ruleCount].text = rule;
+    }
+    ruleChildren = List.from(ruleChildren)
+      ..add(
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: 'enter a rule for the event',
+            ),
+            controller: ruleControllers[ruleCount],
+            validator: (value) {
+              if (value == null || value.length == 0) {
+                return 'Please enter some text';
+              }
+              return null;
+            },
+          )
+      );
   }
 
   onImageSelectedFromCameraOrGallery(file) {
