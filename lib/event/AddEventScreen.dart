@@ -22,6 +22,19 @@ class AddEventScreenState extends State<AddEventScreen> {
   DateTime selectedEndDate = DateTime.now();
   String uid, name, description,major,minor,observedDays;
   File backgroundImage;
+
+  List<TextEditingController> ruleControllers = [];
+  TextEditingController ruleController = TextEditingController();
+  int ruleCount = 0;
+  List<Widget> ruleChildren = [];
+
+  @override
+  initState(){
+    ruleControllers.add(ruleController);
+    super.initState();
+  }
+
+
   final _formKey = GlobalKey<FormState>();
   _selectStartDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
@@ -50,6 +63,11 @@ class AddEventScreenState extends State<AddEventScreen> {
   _submitEvent() async {
     if (_formKey.currentState.validate()) {
       if (backgroundImage != null) {
+
+        List rules = List();
+        for(TextEditingController ruleController in ruleControllers){
+          rules.add(ruleController.text);
+        }
         EventModel event = EventModel();
         event.uid = this.uid;
         event.name = this.name;
@@ -57,7 +75,7 @@ class AddEventScreenState extends State<AddEventScreen> {
         event.type = this.typeValue;
         event.endDate = this.selectedEndDate;
         event.startDate = this.selectedStartDate;
-        event.rules = "asss";
+        event.rules = rules;
         event.description = this.description;
         event.totalRules = 3;
         List<BeaconData> beacons = List();
@@ -86,7 +104,30 @@ class AddEventScreenState extends State<AddEventScreen> {
       backgroundImage = file;
     });
   }
-
+  
+  _addRule(String rule){
+    setState(() => ++ruleCount);
+    ruleControllers.length = ruleCount+1;
+    ruleControllers[ruleCount] = TextEditingController();
+    if(rule != null){
+      ruleControllers[ruleCount].text = rule;
+    }
+    ruleChildren = List.from(ruleChildren)
+      ..add(
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: 'enter a rule for the event',
+            ),
+            controller: ruleControllers[ruleCount],
+            validator: (value) {
+              if (value == null || value.length == 0) {
+                return 'Please enter some text';
+              }
+              return null;
+            },
+          )
+      );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -173,6 +214,29 @@ class AddEventScreenState extends State<AddEventScreen> {
                         return 'Please enter a valid minor';
                       }
                     },
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(
+                        labelText: 'Rules',
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.add_circle),
+                          onPressed: (){
+                            _addRule(null);
+                          },
+                        )
+                    ),
+                    controller: ruleControllers[0],
+                    validator: (value) {
+                      if (value == null || value.length == 0) {
+                        return 'Please enter some text';
+                      }
+                      return null;
+                    },
+                  ),
+                  ListView(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    children: ruleChildren,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,

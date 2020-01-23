@@ -7,7 +7,7 @@ class EventModel extends BaseModel{
   String type;
   DateTime startDate;
   DateTime endDate;
-  String rules;
+  List rules;
   int totalRules;
   String url;
   String blurUrl;
