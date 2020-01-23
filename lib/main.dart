@@ -1,4 +1,6 @@
 import 'package:else_admin_two/event/AllEventScreen.dart';
+import 'package:else_admin_two/feedback/feedback_list.dart';
+import 'package:else_admin_two/feedback/feedback_screen.dart';
 import 'package:else_admin_two/firebaseUtil/database_manager.dart';
 import 'package:else_admin_two/deals/deal_list.dart';
 import 'package:else_admin_two/requests/request_page.dart';
@@ -56,6 +58,11 @@ class _MyHomePageState extends State<MyHomePage> {
         MaterialPageRoute(builder: (BuildContext context) => RequestPage()));
   }
 
+  _redirectToFeedbackPage() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => FeedBackList()));
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -102,7 +109,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.white,
                 textColor: Colors.blue,
               ),
-            )
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height/12,
+              child: RaisedButton(
+                onPressed: _redirectToFeedbackPage,
+                child: Text("FeedBacks"),
+                color: Colors.white,
+                textColor: Colors.amber[900],
+              ),
+            ),
           ],
         ),
       ),
