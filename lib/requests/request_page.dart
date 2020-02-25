@@ -1,4 +1,5 @@
 import 'package:else_admin_two/firebaseUtil/api.dart';
+import 'package:else_admin_two/firebaseUtil/database_manager.dart';
 import 'package:else_admin_two/requests/models/request_crud_model.dart';
 import 'package:else_admin_two/requests/models/request_model.dart';
 import 'package:else_admin_two/utils/Contants.dart';
@@ -10,15 +11,16 @@ class RequestPage extends StatefulWidget{
 }
 
 class _RequestPage extends State<RequestPage>{
-  RequestCrudModel _requestCrudModel = RequestCrudModel(new Api("/unityOneRohini/requests/allRequests"));
+
   List<Request> _requests = List();
-  
   @override
   void initState() {
     super.initState();
-    _requestCrudModel.fetchRequests().then((requestList){
-      _requests = requestList;
-      setState(() {});
+    DatabaseManager().getFewRequests(requestFetched);
+  }
+  requestFetched(List<Request> requests){
+    setState(() {
+      this._requests=requests;
     });
   }
 
@@ -28,11 +30,7 @@ class _RequestPage extends State<RequestPage>{
       appBar: AppBar(
         title: Text("Requests"),
       ),
-      body: SingleChildScrollView(
-        child: ListView.separated(
-          separatorBuilder: (context, index) => Divider(
-            color: Colors.black,
-          ),
+      body: ListView.builder(
           shrinkWrap: true,
           itemCount: _requests.length,
           itemBuilder: (BuildContext context, int index){
@@ -49,8 +47,7 @@ class _RequestPage extends State<RequestPage>{
               ),
             );
           },
-        ),
-      ),
+        )
     );
   }
 

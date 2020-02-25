@@ -16,6 +16,7 @@ class EventModel extends BaseModel{
   String uid;
   int observedDays;
   List<BeaconData> beaconDataList;
+  int submissionCount;
   EventModel(){
 
   }

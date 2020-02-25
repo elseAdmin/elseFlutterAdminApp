@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:else_admin_two/event/events_model.dart';
 import 'package:else_admin_two/event/online_submission_model.dart';
+import 'package:else_admin_two/feedback/feedback_model.dart';
+import 'package:else_admin_two/requests/models/request_model.dart';
 import 'package:else_admin_two/utils/app_startup_data.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -36,11 +38,45 @@ class DatabaseManager {
     }
   }
 
-  getAllEvents() async {
+  getCounts(Function(Map) callback) async {
+    Map<String, int> counts = HashMap();
+    await store
+        .collection(StartupData.dbreference)
+        .document('feedback')
+        .get()
+        .then((snapshot) {
+      counts.putIfAbsent('feedback', () => snapshot.data['count']);
+    });
+    await store
+        .collection(StartupData.dbreference)
+        .document('requests')
+        .get()
+        .then((snapshot) {
+      counts.putIfAbsent('request', () => snapshot.data['count']);
+    });
+    return callback(counts);
+  }
+
+  getFewRequests(Function(List<Request>) callback) async {
+    List<Request> requests = List();
+    await store
+        .collection(StartupData.dbreference)
+        .document('requests')
+        .collection('allRequests')
+        .orderBy('timestamp', descending: true)
+        .getDocuments()
+        .then((snapshot) {
+      snapshot.documents.forEach((request) {
+        requests.add(Request.fromMap(request.data, request.documentID));
+      });
+    });
+    return callback(requests);
+  }
+
+  getAllEvents(Function(List) callback) async {
     await getEventsDBRef().once().then((snapshot) {
       if (snapshot.value.length != 0) {
         events = List();
-        //print(snapshot.value);
         snapshot.value.forEach((key, value) {
           EventModel event = EventModel.fromMap(value);
           events.add(event);
@@ -49,7 +85,40 @@ class DatabaseManager {
     }).catchError((error) {
       logger.i(error);
     });
-    return events;
+    for (int i = 0; i < events.length; i++) {
+      await store
+          .collection(StartupData.dbreference)
+          .document('events')
+          .collection(events[i].uid)
+          .document('submissions')
+          .get()
+          .then((snapshot) {
+        events[i].submissionCount = snapshot.data['count'];
+      });
+    }
+    return callback(events);
+  }
+
+  getFootfall(int major, int minor) async {
+    Set users = HashSet();
+    await store
+        .collection(StartupData.dbreference)
+        .document("beacons")
+        .collection("monitoring")
+        .document(major.toString())
+        .collection(minor.toString())
+        .where('timestamp',
+        isGreaterThanOrEqualTo:
+        DateTime
+            .now()
+            .millisecondsSinceEpoch - (24 * 60 * 60 * 1000))
+        .getDocuments()
+        .then((snapshot) {
+      snapshot.documents.forEach((visit) {
+        users.add(visit.data['userUid']);
+      });
+    });
+    return users.length;
   }
 
   addEvent(EventModel event, File image) async {
@@ -163,17 +232,43 @@ class DatabaseManager {
         .updateData({'status': status});
   }
 
-  markSubmissionWinner(OnlineEventSubmissionModel model, String uid) async{
+  markSubmissionWinner(OnlineEventSubmissionModel model, String uid) async {
     await store
         .collection(StartupData.dbreference)
         .document("events")
         .collection(uid)
         .document("submissions")
-        .collection("winnerSubmission").add({
-      'userUid':model.userUid,
-      'imageUrl':model.imageUrl,
-      'participatedAt':model.participatedAt,
-      'markedWinnerAt':DateTime.now().millisecondsSinceEpoch
+        .collection("winnerSubmission")
+        .add({
+      'userUid': model.userUid,
+      'imageUrl': model.imageUrl,
+      'participatedAt': model.participatedAt,
+      'markedWinnerAt': DateTime
+          .now()
+          .millisecondsSinceEpoch
+    });
+  }
+
+  getAllFeedbacks(Function(List<FeedBack> feedbacks) feedbackFetched) async {
+    List<FeedBack> feedbacks = List();
+    await store
+        .collection(StartupData.dbreference)
+        .document("feedback")
+        .collection("allfeedbacks")
+        .orderBy('createdDate', descending: true)
+        .getDocuments()
+        .then((snapshot) {
+      snapshot.documents.forEach((doc) {
+        feedbacks.add(FeedBack.fromMap(doc.data, doc.documentID));
+      });
+    });
+    return feedbackFetched(feedbacks);
+  }
+
+  updateFeedbackStatus(String id, String statusValue) async {
+    await store.collection(StartupData.dbreference).document('feedback').collection('allfeedbacks').document(id).updateData({
+      'feedbackStatus':statusValue,
+      'updatedAt':DateTime.now().millisecondsSinceEpoch
     });
   }
 }

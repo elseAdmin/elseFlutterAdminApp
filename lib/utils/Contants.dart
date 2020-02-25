@@ -1,3 +1,4 @@
+import 'package:else_admin_two/feedback/FeedbackStatus.dart';
 import 'package:flutter/material.dart';
 
 class Constants {
@@ -22,4 +23,5 @@ class Constants {
    static bool parkingEligibleUser = false;
    static bool hasScannedForParking = false;
    static int parkingLevel=-1;
+   static List<String> feedbackStates = [ StatusString.getString(Status.PENDING),StatusString.getString(Status.ACKNOWLEDGED), StatusString.getString(Status.COMPLETED), StatusString.getString(Status.INVALID), StatusString.getString(Status.IN_PROCESS)];
 }

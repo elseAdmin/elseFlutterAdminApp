@@ -28,10 +28,9 @@ class _DealSectionState extends State<DealSection> {
         .then((snapshot) {
       if (snapshot.value.length != 0) {
         deals = List();
-        List dealsKey = snapshot.value.keys.toList();
         for (int i = 0; i < snapshot.value.length; i++) {
-          if (snapshot.value[dealsKey[i]] != null) {
-            DealModel deal = DealModel.fromMap(snapshot.value[dealsKey[i]]);
+          if (snapshot.value[i] != null) {
+            DealModel deal = DealModel.fromMap(snapshot.value[i]);
             deals.add(deal);
           }
         }

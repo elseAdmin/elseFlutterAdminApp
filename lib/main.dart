@@ -1,5 +1,5 @@
+import 'package:else_admin_two/HomePage.dart';
 import 'package:else_admin_two/event/AllEventScreen.dart';
-import 'package:else_admin_two/firebaseUtil/database_manager.dart';
 import 'package:else_admin_two/deals/deal_list.dart';
 import 'package:else_admin_two/requests/request_page.dart';
 import 'package:else_admin_two/shop/shop_screen.dart';
@@ -32,9 +32,47 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   @override
-  initState(){
+  initState() {
     super.initState();
-    DatabaseManager().getAllEvents();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    SizeConfig().init(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      drawer: Drawer(
+          child: Center(
+        child: ListView(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          children: <Widget>[
+            RaisedButton(
+              onPressed: _redirectToEventPage,
+              child: Text("Events"),
+              color: Colors.white,
+              textColor: Colors.brown,
+            ),
+            RaisedButton(
+              onPressed: _redirectToShopPage,
+              child: Text("Shops"),
+              color: Colors.white,
+              textColor: Colors.red,
+            ),
+            RaisedButton(
+              onPressed: _redirectToDealsPage,
+              child: Text("Deals"),
+              color: Colors.white,
+              textColor: Colors.green,
+            ),
+          ],
+        ),
+        // Populate the Drawer in the next step.
+      )),
+      body: HomePage(),
+    );
   }
   _redirectToEventPage() {
     Navigator.push(context,
@@ -49,63 +87,5 @@ class _MyHomePageState extends State<MyHomePage> {
   _redirectToDealsPage() {
     Navigator.push(context,
         MaterialPageRoute(builder: (BuildContext context) => DealSection()));
-  }
-
-  _redirectToRequestsPage() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => RequestPage()));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    SizeConfig().init(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: ListView(
-          padding: const EdgeInsets.all(3),
-          children: <Widget>[
-            SizedBox(
-              height: MediaQuery.of(context).size.height/12,
-              child: RaisedButton(
-                onPressed: _redirectToEventPage,
-                child: Text("Events"),
-                color: Colors.white,
-                textColor: Colors.brown,
-              ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height/12,
-              child: RaisedButton(
-                onPressed: _redirectToShopPage,
-                child: Text("Shops"),
-                color: Colors.white,
-                textColor: Colors.red,
-              ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height/12,
-              child: RaisedButton(
-                onPressed: _redirectToDealsPage,
-                child: Text("Deals"),
-                color: Colors.white,
-                textColor: Colors.green,
-              ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height/12,
-              child: RaisedButton(
-                onPressed: _redirectToRequestsPage,
-                child: Text("Requests"),
-                color: Colors.white,
-                textColor: Colors.blue,
-              ),
-            )
-          ],
-        ),
-      ),
-    );
   }
 }
