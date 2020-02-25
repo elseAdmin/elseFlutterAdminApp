@@ -36,6 +36,11 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
+  _redirectToFeedbackPage() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => FeedBackList()));
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
