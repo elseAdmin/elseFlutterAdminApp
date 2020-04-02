@@ -6,6 +6,7 @@ class Constants {
    static Color titleBarBackgroundColor =Colors.grey[100];
    static Color titleBarTextColor = Colors.grey[800];
    static Color horizontalListBackgroundColor = Colors.grey[0];
+   static Color dividerColor = Colors.grey[500];
 
    static Color textColor = Colors.grey[800];
 

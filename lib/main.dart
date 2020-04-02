@@ -1,8 +1,6 @@
 import 'package:else_admin_two/HomePage.dart';
-import 'package:else_admin_two/event/AllEventScreen.dart';
-import 'package:else_admin_two/deals/deal_list.dart';
-import 'package:else_admin_two/requests/request_page.dart';
-import 'package:else_admin_two/shop/shop_screen.dart';
+import 'package:else_admin_two/drawer/drawer_router.dart';
+import 'package:else_admin_two/utils/Contants.dart';
 import 'package:else_admin_two/utils/SizeConfig.dart';
 import 'package:flutter/material.dart';
 
@@ -31,14 +29,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final List<String> listData = <String>['Events', 'Shops', 'Deals', 'FeedBacks', 'Request'];
+  DrawerRoute handler = new DrawerRoute();
+
   @override
   initState() {
     super.initState();
-  }
-
-  _redirectToFeedbackPage() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => FeedBackList()));
   }
 
   @override
@@ -50,47 +46,28 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       drawer: Drawer(
           child: Center(
-        child: ListView(
+        child: ListView.separated(
           physics: NeverScrollableScrollPhysics(),
+          separatorBuilder: (context, index) => Divider(
+            color: Constants.dividerColor,
+            indent: SizeConfig.blockSizeHorizontal * 5,
+            endIndent: SizeConfig.blockSizeHorizontal * 5,
+          ),
+          itemCount: listData.length,
           shrinkWrap: true,
-          children: <Widget>[
-            RaisedButton(
-              onPressed: _redirectToEventPage,
-              child: Text("Events"),
-              color: Colors.white,
-              textColor: Colors.brown,
-            ),
-            RaisedButton(
-              onPressed: _redirectToShopPage,
-              child: Text("Shops"),
-              color: Colors.white,
-              textColor: Colors.red,
-            ),
-            RaisedButton(
-              onPressed: _redirectToDealsPage,
-              child: Text("Deals"),
-              color: Colors.white,
-              textColor: Colors.green,
-            ),
-          ],
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              title: Text('${listData[index]}'),
+              trailing: Icon(Icons.arrow_forward),
+              onTap: () {
+                handler.routeToProfileOptions(context, index);
+              },
+            );
+          },
         ),
         // Populate the Drawer in the next step.
       )),
       body: HomePage(),
     );
-  }
-  _redirectToEventPage() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => AllEventScreen()));
-  }
-
-  _redirectToShopPage() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => ShopScreen()));
-  }
-
-  _redirectToDealsPage() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => DealSection()));
   }
 }
