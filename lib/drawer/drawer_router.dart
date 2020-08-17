@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 class DrawerRoute {
   Future routeToProfileOptions(BuildContext context, int index){
+    Navigator.pop(context);
     switch (index) {
       case 0 :
         return Navigator.push(context,

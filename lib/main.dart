@@ -29,7 +29,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<String> listData = <String>['Events', 'Shops', 'Deals', 'FeedBacks', 'Request'];
+  final List<String> listData = <String>['Events', 'Shops', 'Deals', 'FeedBacks', 'Request', 'Logout'];
   DrawerRoute handler = new DrawerRoute();
 
   @override
@@ -45,28 +45,48 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       drawer: Drawer(
-          child: Center(
-        child: ListView.separated(
-          physics: NeverScrollableScrollPhysics(),
-          separatorBuilder: (context, index) => Divider(
-            color: Constants.dividerColor,
-            indent: SizeConfig.blockSizeHorizontal * 5,
-            endIndent: SizeConfig.blockSizeHorizontal * 5,
-          ),
-          itemCount: listData.length,
-          shrinkWrap: true,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Text('${listData[index]}'),
-              trailing: Icon(Icons.arrow_forward),
-              onTap: () {
-                handler.routeToProfileOptions(context, index);
+        child: Column(
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountName: Text('Admin User'),
+              accountEmail: Text('admin@email'),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor:
+                Theme.of(context).platform == TargetPlatform.iOS
+                    ? Colors.blue
+                    : Colors.white,
+                child: Text(
+                  "PIC",
+                  style: TextStyle(fontSize: 40.0),
+                ),
+              ),
+            ),
+            ListView.separated(
+              physics: NeverScrollableScrollPhysics(),
+              separatorBuilder: (context, index) => Divider(
+                color: Constants.dividerColor,
+                indent: SizeConfig.blockSizeHorizontal * 5,
+                endIndent: SizeConfig.blockSizeHorizontal * 5,
+              ),
+              itemCount: listData.length,
+              shrinkWrap: true,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title: Text('${listData[index]}'),
+//                  trailing: Icon(Icons.arrow_forward),
+                  onTap: () {
+                    handler.routeToProfileOptions(context, index);
+                  },
+                );
               },
-            );
-          },
-        ),
+            ),
+            Center(
+              child: Text("ELSE"),
+            ),
+          ],
         // Populate the Drawer in the next step.
-      )),
+        ),
+      ),
       body: HomePage(),
     );
   }
